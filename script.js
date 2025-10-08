@@ -52,7 +52,7 @@ function createSlides() {
 
     const img = document.createElement("img");
     const imageNumber = (i % totalSlides) + 1;  // 循环使用1-20的图片
-    img.src = `./slide/1 (${imageNumber}).jpg`;     // 使用相对路径加载图片 - 从slide子文件夹加载
+    img.src = `./slide/1 (${imageNumber}).webp`;     // 使用相对路径加载图片 - 从slide子文件夹加载
 
     slide.appendChild(img);
     slider.appendChild(slide);
@@ -247,7 +247,7 @@ function createThumbnailItems() {
     // 创建图片元素
     const img = document.createElement("img");
     const imageNumber = i + 1;
-    img.src = `./slide/1 (${imageNumber}).jpg`;  // 加载对应缩略图 - 从slide子文件夹加载
+    img.src = `./slide/1 (${imageNumber}).webp`;  // 加载对应缩略图 - 从slide子文件夹加载
     thumbnail.appendChild(img);
 
     // 使用GSAP设置位置和变换原点
@@ -295,4 +295,5 @@ function updateThumbnailItems() {
     });
   });
 }
+
 
