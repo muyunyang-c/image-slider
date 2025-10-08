@@ -67,7 +67,7 @@ img {
   background-color: #000;
   padding: 0.2rem 0.4rem;
   pointer-events: none;  /* 不响应鼠标事件 */
-  z-index: 0;  /* 2能确保在最上层显示，目前设置为0隐藏 */
+  z-index: 2;  /* 2能确保在最上层显示，目前设置为0隐藏 */
 }
 
 /**
@@ -111,4 +111,5 @@ img {
     height: 30px;
   }
 }
+
 
