@@ -41,6 +41,27 @@ let isScrolling = false; // 是否正在滚动
 let scrollTimeout;       // 滚动超时定时器
 let activeSlideIndex = 0; // 当前激活的幻灯片索引
 
+// 全局随机图片顺序数组 - 确保主幻灯片和缩略图顺序一致
+let shuffledImageOrder = [];
+
+/**
+ * 生成随机图片顺序
+ * 使用Fisher-Yates洗牌算法确保主幻灯片和缩略图顺序一致
+ */
+function generateShuffledOrder() {
+  // 生成1-20的随机数组，避免重复
+  const shuffledNumbers = [];
+  for (let i = 1; i <= totalSlides; i++) {
+    shuffledNumbers.push(i);
+  }
+  // 使用Fisher-Yates洗牌算法随机打乱数组
+  for (let i = shuffledNumbers.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffledNumbers[i], shuffledNumbers[j]] = [shuffledNumbers[j], shuffledNumbers[i]];
+  }
+  shuffledImageOrder = shuffledNumbers;  // 存储到全局变量
+}
+
 /**
  * 创建幻灯片元素
  * 生成3倍数量的幻灯片用于无缝循环滚动
@@ -51,8 +72,8 @@ function createSlides() {
     slide.className = "slide";
 
     const img = document.createElement("img");
-    const imageNumber = (i % totalSlides) + 1;  // 循环使用1-20的图片
-    img.src = `./slide/1 (${imageNumber}).webp`;     // 使用相对路径加载图片 - 从slide子文件夹加载webp格式
+    const imageNumber = shuffledImageOrder[i % totalSlides];  // 使用全局随机顺序
+    img.src = `./slide/1 (${imageNumber}).webp`;     // 使用相对路径加载图片 - 从slide子文件夹随机加载webp格式
 
     slide.appendChild(img);
     slider.appendChild(slide);
@@ -77,7 +98,8 @@ function initializeSlider() {
   targetX = centerOffset;   // 设置目标位置
 }
 
-createSlides();
+generateShuffledOrder();  // 先生成随机顺序
+createSlides();           // 再创建幻灯片
 initializeSlider();
 
 /**
@@ -159,7 +181,7 @@ window.addEventListener('resize', () => {
   
   // 重新初始化滑块和缩略图
   initializeSlider();
-  updateThumbnailItems();
+  updateThumbnailItems(0); // 默认从第一个开始
 });
 
 /**
@@ -219,8 +241,8 @@ function animate() {
   const currentTitleIndex = centerSlideIndex;
   slideTitle.textContent = slideTitles[currentTitleIndex];
 
-  // 更新缩略图位置
-  updateThumbnailItems();
+  // 更新缩略图位置 - 传入当前最中心的幻灯片索引
+  updateThumbnailItems(centerSlideIndex);
   
   requestAnimationFrame(animate);  // 继续下一帧动画
 }
@@ -246,8 +268,8 @@ function createThumbnailItems() {
 
     // 创建图片元素
     const img = document.createElement("img");
-    const imageNumber = i + 1;
-    img.src = `./slide/1 (${imageNumber}).webp`;  // 加载对应缩略图 - 从slide子文件夹加载webp格式
+    const imageNumber = shuffledImageOrder[i];  // 使用与主幻灯片相同的随机顺序
+    img.src = `./slide/1 (${imageNumber}).webp`;  // 加载对应缩略图 - 从slide子文件夹随机加载webp格式
     thumbnail.appendChild(img);
 
     // 使用GSAP设置位置和变换原点
@@ -265,22 +287,27 @@ createThumbnailItems();
 
 /**
  * 更新缩略图位置
- * 根据主幻灯片的滚动进度旋转缩略图轨道
+ * 根据当前最中心的幻灯片索引调整缩略图轨道旋转
+ * @param {number} centerSlideIndex - 当前最中心的幻灯片索引
  */
-function updateThumbnailItems() {
-  // 计算精确的滚动进度（0-1之间）
-  const exactSlideProgress = Math.abs(currentX) / slideWidth;
-  // 计算当前旋转角度（负值用于顺时针旋转，+90度用于顶部起始）
-  const currentRotationAngle = -(exactSlideProgress * (360 / totalSlides)) + 90;
+function updateThumbnailItems(centerSlideIndex) {
+  // 计算旋转角度，确保当前中心幻灯片对应的缩略图位于正上方（12点钟位置）
+  // 每个缩略图之间的角度间隔
+  const anglePerThumbnail = (2 * Math.PI) / totalSlides;
+  // 计算需要旋转的角度，使中心幻灯片对应的缩略图位于顶部
+  const targetRotationAngle = -centerSlideIndex * anglePerThumbnail + Math.PI / 2; // +90度调整到顶部
+  
+  // 使用缓动效果使旋转更平滑
+  const currentRotationAngle = targetRotationAngle; // 可以直接使用目标角度，因为GSAP会处理平滑过渡
 
   const thumbnails = document.querySelectorAll(".thumbnail-item");
-  thumbnails.forEach((thumbnail) => {
+  thumbnails.forEach((thumbnail, index) => {
     // 获取存储的基础角度和半径
     const baseAngle = parseFloat(thumbnail.dataset.angle);
     const radius = isMobile ? 150 : 300;
     
-    // 计算当前实际角度（基础角度 + 滚动旋转）
-    const currentAngle = baseAngle + (currentRotationAngle * Math.PI) / 180;
+    // 计算当前实际角度（基础角度 + 旋转调整）
+    const currentAngle = baseAngle + currentRotationAngle;
 
     // 计算新的XY坐标
     const x = radius * Math.cos(currentAngle) + window.innerWidth / 2;
@@ -293,6 +320,13 @@ function updateThumbnailItems() {
       rotation: 0,
       transformOrigin: "center center",
     });
+    
+    // 高亮当前中心的缩略图
+    if (index === centerSlideIndex) {
+      thumbnail.classList.add('active');
+    } else {
+      thumbnail.classList.remove('active');
+    }
   });
 }
 
