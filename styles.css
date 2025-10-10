@@ -57,7 +57,7 @@ img {
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, 800%);  /* 精确居中 */
+  transform: translate(-50%, 800%);  /* 位置调整，向下移动800%，位于屏幕中下位置 */
   color: #fff;
   text-align: center;
   text-transform: uppercase;  /* 大写字母 */
@@ -93,6 +93,18 @@ img {
   width: 35px;
   height: 50px;
   overflow: hidden;
+  transition: transform 0.3s ease, opacity 0.3s ease; /* 添加平滑过渡效果 */
+  opacity: 0.6; /* 默认半透明 */
+}
+
+/**
+ * 当前中心的缩略图项
+ * 高亮显示当前对应的缩略图
+ */
+.thumbnail-item.active {
+  opacity: 1; /* 完全不透明 */
+  transform: scale(1.2); /* 稍微放大 */
+  z-index: 10; /* 确保在最上层 */
 }
 
 /**
@@ -111,6 +123,4 @@ img {
     height: 30px;
   }
 }
-
-
 
