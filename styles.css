@@ -4,9 +4,6 @@
  * 支持响应式设计，适配移动端
  */
 
-/* 导入DM Mono字体 - 用于标题和界面文字 */
-@import url("https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500& display=swap");
-
 /* 全局重置样式 */
 * {
   margin: 0;
@@ -14,9 +11,9 @@
   box-sizing: border-box;
 }
 
-/* 基础字体设置 */
+/* 基础字体设置 - 使用系统默认字体 */
 body {
-  font-family: "DM Mono";
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
 /* 图片基础样式 - 确保图片填满容器并保持比例 */
